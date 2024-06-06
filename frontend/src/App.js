@@ -4,6 +4,8 @@ import Home from "./pages/Home";
 import SignupPage from "./pages/SignupPage";
 import LoginPage from "./pages/LoginPage";
 import CartPage from "./pages/CartPage";
+import Checkout from "./pages/Checkout";
+import ProductDetailPage from "./pages/ProductDetailPage";
 
 function App() {
   const router = createBrowserRouter([
@@ -23,7 +25,16 @@ function App() {
       path: "/cart",
       element: <CartPage />,
     },
+    {
+      path: "/checkout",
+      element: <Checkout />,
+    },
+    {
+      path: "/productdetail",
+      element: <ProductDetailPage />,
+    },
   ]);
+
   return (
     <div className="App">
       <RouterProvider router={router} />
