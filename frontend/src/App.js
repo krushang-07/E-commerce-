@@ -30,7 +30,7 @@ function App() {
       element: <Checkout />,
     },
     {
-      path: "/productdetail",
+      path: "/product-detail",
       element: <ProductDetailPage />,
     },
   ]);
