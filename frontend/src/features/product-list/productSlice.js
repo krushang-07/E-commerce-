@@ -14,8 +14,8 @@ export const fetchAllProductsAsync = createAsyncThunk(
 );
 export const fetchProductsByFilterAsync = createAsyncThunk(
   "product/fetchProductByFilter",
-  async (filter) => {
-    const response = await fetchProductByFilter(filter);
+  async (filter, pagination, sort) => {
+    const response = await fetchProductByFilter(filter, pagination, sort);
     return response.data;
   }
 );
