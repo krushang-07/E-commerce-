@@ -6,6 +6,11 @@ import {
   selectAllProducts,
   selectCount,
   fetchProductsByFilterAsync,
+  selectTotalItems,
+  selectCategory,
+  selectBrands,
+  fetchBrandsAsync,
+  fetchCategoryAsync,
 } from "../productSlice";
 
 import {
@@ -45,87 +50,6 @@ const sortOptions = [
   { name: "Price: High to Low", sort: "price", order: "desc", current: false },
 ];
 const subCategories = [];
-const filters = [
-  {
-    id: "brand",
-    name: "Brands",
-    options: [
-      { value: "Essence", label: "Essence", checked: false },
-      { value: "Glamour Beauty", label: "Glamour Beauty", checked: false },
-      { value: "Velvet Touch", label: "Velvet Touch", checked: false },
-      { value: "Chic Cosmetics", label: "Chic Cosmetics", checked: false },
-      { value: "Nail Couture", label: "Nail Couture", checked: false },
-      { value: "Calvin Klein", label: "Calvin Klein", checked: false },
-      { value: "Chanel", label: "Chanel", checked: false },
-      { value: "Dior", label: "Dior", checked: false },
-      {
-        value: "Dolce & Gabbana",
-        label: "Dolce & Gabbana",
-        checked: false,
-      },
-      { value: "Gucci", label: "Gucci", checked: false },
-      {
-        value: "Annibale Colombo",
-        label: "Annibale Colombo",
-        checked: false,
-      },
-      { value: "Furniture Co.", label: "Furniture Co.", checked: false },
-      { value: "Knoll", label: "Knoll", checked: false },
-      { value: "Bath Trends", label: "Bath Trends", checked: false },
-      { value: undefined, label: undefined, checked: false },
-      { value: "Apple", label: "Apple", checked: false },
-      { value: "Asus", label: "Asus", checked: false },
-      { value: "Huawei", label: "Huawei", checked: false },
-      { value: "Lenovo", label: "Lenovo", checked: false },
-      { value: "Dell", label: "Dell", checked: false },
-      { value: "Fashion Trends", label: "Fashion Trends", checked: false },
-      { value: "Gigabyte", label: "Gigabyte", checked: false },
-      { value: "Classic Wear", label: "Classic Wear", checked: false },
-      { value: "Casual Comfort", label: "Casual Comfort", checked: false },
-      { value: "Urban Chic", label: "Urban Chic", checked: false },
-      { value: "Nike", label: "Nike", checked: false },
-      { value: "Puma", label: "Puma", checked: false },
-      { value: "Off White", label: "Off White", checked: false },
-      {
-        value: "Fashion Timepieces",
-        label: "Fashion Timepieces",
-        checked: false,
-      },
-      { value: "Longines", label: "Longines", checked: false },
-      { value: "Rolex", label: "Rolex", checked: false },
-      { value: "Amazon", label: "Amazon", checked: false },
-    ],
-  },
-  {
-    id: "category",
-    name: "Category",
-    options: [
-      { value: "beauty", label: "beauty", checked: false },
-      { value: "fragrances", label: "fragrances", checked: false },
-      { value: "furniture", label: "furniture", checked: false },
-      { value: "groceries", label: "groceries", checked: false },
-      {
-        value: "home-decoration",
-        label: "home decoration",
-        checked: false,
-      },
-      {
-        value: "kitchen-accessories",
-        label: "kitchen accessories",
-        checked: false,
-      },
-      { value: "laptops", label: "laptops", checked: false },
-      { value: "mens-shirts", label: "mens shirts", checked: false },
-      { value: "mens-shoes", label: "mens shoes", checked: false },
-      { value: "mens-watches", label: "mens watches", checked: false },
-      {
-        value: "mobile-accessories",
-        label: "mobile accessories",
-        checked: false,
-      },
-    ],
-  },
-];
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
@@ -134,36 +58,48 @@ function classNames(...classes) {
 export default function ProductList() {
   const dispatch = useDispatch();
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
-  const products = useSelector((state) => state.product.products);
+  const products = useSelector(selectAllProducts);
+  const totalItems = useSelector(selectTotalItems);
+  const brands = useSelector(selectBrands);
+  const category = useSelector(selectCategory);
   const [filter, setFilter] = useState({});
+  const [sort, setSort] = useState({});
   const [page, setPage] = useState(1);
 
+  const filters = [
+    {
+      id: "brand",
+      name: "Brands",
+      options: brands,
+    },
+    {
+      id: "category",
+      name: "Category",
+      options: category,
+    },
+  ];
+
   const handleFilter = (e, section, option) => {
-    // // e.preventDefault();
-    // const newFilter = { ...filter };
+    // e.preventDefault();
+    const newFilter = { ...filter };
 
     // //todo: task multiple categories
-    // if (e.target.checked) {
-    //   //set the filter old checkbox object or new by section:option
-    //   if (newFilter[section.id]) {
-    //     newFilter[section.id].push(option.value);
-    //   } else {
-    //     newFilter[section.id] = [option.value];
-    //   }
-    // } else {
-    //   const index = newFilter[section.id].findIndex(
-    //     (el) => el === option.value
-    //   );
-    //   newFilter[section.id].splice(index, 1);
-    // }
-    // console.log(newFilter);
-    // setFilter(newFilter);
-    // dispatch(fetchProductsByFilterAsync(newFilter));
-
-    const newFilter = { ...filter, [section.id]: option.value };
+    if (e.target.checked) {
+      //set the filter old checkbox object or new by section:option
+      if (newFilter[section.id]) {
+        newFilter[section.id].push(option.value);
+      } else {
+        newFilter[section.id] = [option.value];
+      }
+    } else {
+      const index = newFilter[section.id].findIndex(
+        (el) => el === option.value
+      );
+      newFilter[section.id].splice(index, 1);
+    }
+    console.log(newFilter);
     setFilter(newFilter);
     dispatch(fetchProductsByFilterAsync(newFilter));
-    console.log(section.id, option.value);
   };
 
   const handleSort = (e, option) => {
@@ -181,6 +117,15 @@ export default function ProductList() {
     const pagination = { _page: page, _limit: ITEM_PER_PAGE };
     dispatch(fetchAllProductsAsync(filter, pagination));
   }, [dispatch, filter, page]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [totalItems, sort]);
+
+  useEffect(() => {
+    dispatch(fetchBrandsAsync());
+    dispatch(fetchCategoryAsync());
+  }, []);
 
   return (
     <div>
@@ -513,6 +458,7 @@ export default function ProductList() {
                 page={page}
                 setPage={setPage}
                 handlePage={handlePage}
+                totalItems={totalItems}
               ></Pagination>
             </main>
           </div>

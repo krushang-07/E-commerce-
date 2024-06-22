@@ -3,7 +3,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { ITEM_PER_PAGE } from "../app/constant";
 
-const Pagination = ({ handlePage, page, setPage, totalItems = 55 }) => {
+const Pagination = ({ handlePage, page, setPage, totalItems = 100 }) => {
   return (
     <div>
       <div className="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6">
@@ -28,8 +28,13 @@ const Pagination = ({ handlePage, page, setPage, totalItems = 55 }) => {
               <span className="font-medium">
                 {(page - 1) * ITEM_PER_PAGE + 1}
               </span>{" "}
-              to <span className="font-medium">{page * ITEM_PER_PAGE}</span> of{" "}
-              <span className="font-medium">{totalItems}</span> results
+              to{" "}
+              <span className="font-medium">
+                {page * ITEM_PER_PAGE > totalItems
+                  ? totalItems
+                  : page * ITEM_PER_PAGE > totalItems}
+              </span>{" "}
+              of <span className="font-medium">{totalItems}</span> results
             </p>
           </div>
           <div>
